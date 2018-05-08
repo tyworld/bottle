@@ -1,0 +1,37 @@
+#app {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-image: url("../img/bg.png");
+    background-size: 100% 100%;
+    background-position: 50% 50%;
+}
+
+.opt {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding-bottom: 30px;
+}
+
+.opt .throw {
+    text-align: center;
+    margin-right: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.opt .throw img {
+    width:110px;
+    transition: all .3s;
+}
+
+.opt .throw img:hover {
+    padding-bottom: 10px;
+    transform: scale(1.1);
+}
