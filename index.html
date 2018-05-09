@@ -4,119 +4,220 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
-    <title>Super Dictionary</title>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>星云漂流瓶</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <div id="app">
-        <div class="opt">
-            <div class="throw">
-                <img src="img/salvage5.png" alt="">
-                <div>扔一个</div>
+<div class="logo"></div>
+<div id="app">
+    <div class="opt">
+        <div id="throw" class="throw">
+            <img src="img/salvage5.png" id="throwObj">
+            <img src="img/salvage5.png" alt="">
+            <div>扔一个</div>
+        </div>
+        <div id="lao" class="throw">
+            <img src="img/salvage.png" alt="">
+            <div>捞一个</div>
+        </div>
+    </div>
+    <div class="xinzhi-wrap">
+        <div class="content">
+            <div class="item" v-for="l in list" v-html="l"></div>
+        </div>
+        <div class="repay">
+            <textarea placeholder="点击这里回复他/她" id="repayContent" cols="60" rows="4"></textarea>
+        </div>
+        <div class="submit">
+            <div class="btn">
+                回复
             </div>
-            <div class="throw">
-                <img src="img/salvage.png" alt="">
-                <div>捞一个</div>
-            </div>
+        </div>
+        <div class="throw-btn">
+            扔回去
         </div>
     </div>
 
-    <script src=lib/jquery-3.3.1.min.js></script>
-    <script src=lib/nebPay.js></script>
-    <script>
-        var NebPay = require("nebpay");     //https://github.com/nebulasio/nebPay
-        var nebPay = new NebPay();
+    <div class="write-wrap">
+        <div class="repay">
+            <textarea id="sendContent" placeholder="点击填写内容" cols="60" rows="4"></textarea>
+        </div>
+        <div class="submit">
+            <div class="btn send" style="width:100px;">
+                扔漂流瓶
+            </div>
+        </div>
+        <div class="throw-btn cancel">
+            算了
+        </div>
+    </div>
 
-        $("#search_value").attr("disabled",true)
-        $("#search").attr("disabled",true)
+    <div class="answer">
+        <div class="item">
+            <div>
+                1. 点击'扔一个'或者'捞一个'
+            </div>
+            <div>
+                2. 填写你想说的话/回复别人的话
+            </div>
+            <div>
+                3. 扔向大海
+            </div>
+        </div>
+    </div>
+    <div class="question">
+        <a href="https://incentive.nebulas.io/cn/signup.html?invite=32KAi">提交DAPP获得100NAS</a>
+    </div>
+</div>
 
-
-        //to check if the extension is installed
-        //if the extension is installed, var "webExtensionWallet" will be injected in to web page
-        if(typeof(webExtensionWallet) === "undefined"){
-            //alert ("Extension wallet is not installed, please install it first.")
-            $("#noExtension").removeClass("hide")
-        }else{
-            $("#search_value").attr("disabled",false)
-            $("#search").attr("disabled",false)
+<script src=lib/jquery-3.3.1.min.js></script>
+<script src=lib/nebPay.js></script>
+<script src="lib/layer/layer.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            list: []
         }
+    });
 
-        var dappAddress = "n1tKjqzhsrtLdS3sP7WkkiDH2UwqU72nbY1";
+    //扔进大海
+    $('.xinzhi-wrap .throw-btn').on('click', function () {
+        $('.xinzhi-wrap').css('transform', 'scale(0)');
+        setTimeout(function () {
+            $('.xinzhi-wrap').hide();
+        }, 500)
+    });
 
-        // 搜索功能: 查找Super-Dictionary 中有没有该词条
-    $("#search").click(function(){
-        // $("#search_value").val() 搜索框内的值
-
+    // 回复
+    $('.xinzhi-wrap .submit').on('click', function () {
+        var content = $('#repayContent').val();
+        if (content == '') {
+            layer.msg('内容不能为空呀!')
+            return;
+        }
         var to = dappAddress;
         var value = "0";
-        var callFunction = "get";
-        var callArgs = "[\"" + $("#search_value").val() + "\"]"; //in the form of ["args"]
-        nebPay.simulateCall(to, value, callFunction, callArgs, {    //使用nebpay的simulateCall接口去执行get查询, 模拟执行.不发送交易,不上链
-            listener: cbSearch      //指定回调函数
-        });
-    })
-
-    //return of search,
-    function cbSearch(resp) {
-        var result = resp.result
-        console.log("return of rpc call: " + JSON.stringify(result))
-
-        if (result === 'null'){
-
-            $("#result_faile_add").text($("#search_value").val())
-
-        } else{
-            //if result is not null, then it should be "return value" or "error message"
-            try{
-                result = JSON.parse(result)
-            }catch (err){
-                //result is the error message
-            }
-
-            if (!!result.key){      //"return value"
-
-                $("#search_banner").text($("#search_value").val())
-                $("#search_result").text(result.value)
-                $("#search_result_author").text(result.author)
-
-                $(".result_success").removeClass("hide");
-            } else {        //"error message"
-
-                $("#search_banner").text($("#search_value").val())
-                $("#search_result").text(result)
-                $("#search_result_author").text("")
-
-                $(".result_success").removeClass("hide");
-            }
-
-        }
-
-    }
-
-    // 添加信息功能: 像super-dictionary 中添加词条
-    $("#add").click(function() {
-
-        $("#add_value").val("")
-    })
-
-    $("#push").click(function() {
-
-        var to = dappAddress;
-        var value = "0";
-        var callFunction = "save"
-        var callArgs = "[\"" + $("#search_value").val() + "\",\"" + $("#add_value").val() + "\"]"
-
-        nebPay.call(to, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
-            listener: cbPush
+        var callFunction = "set"
+        var callArgs = [];
+        callArgs.push(bKey.toString());
+        callArgs.push(content);
+        nebPay.call(to, value, callFunction, JSON.stringify(callArgs), {    //使用nebpay的call接口去调用合约,
+            listener: cbSend
         });
     });
 
-    function cbPush(resp) {
-        console.log("response of push: " + resp)
+    //----------------------
+    var NebPay = require("nebpay");
+    var nebPay = new NebPay();
+
+    if (typeof(webExtensionWallet) === "undefined") {
+        $("#noExtension").removeClass("hide")
+    } else {
+        $("#search_value").attr("disabled", false)
+        $("#search").attr("disabled", false)
     }
 
+    var dappAddress = "n1fxFSy5dgCc67jigDZHj9wVPHVt9BNw7aN";
+
+    var bLen = 0;
+    var bKey = 0;
+    $("#lao").click(function () {
+        var to = dappAddress;
+        var value = "0";
+        var callFunction = "get";
+        var callArgs = [];
+        bKey = randomFrom(1, bLen * 2);
+        callArgs.push(bKey.toString());
+        console.log(callArgs);
+        nebPay.simulateCall(to, value, callFunction, JSON.stringify(callArgs), {
+            listener: cbSearch
+        });
+    })
+
+    //捞到瓶子
+    function cbSearch(resp) {
+        var result = resp.result
+        if (result != 'null') {
+            //layer.msg(result)
+            $('.xinzhi-wrap').show();
+            $('.xinzhi-wrap').css('transform', 'scale(1)');
+            showContent(result);
+        } else {
+            layer.alert('大海空空如也!');
+        }
+    }
+
+    function showContent(result) {
+        var val = JSON.parse(result).value;
+        console.log(val);
+        Vue.set(vm, 'list', val.split('-'));
+    }
+
+    function getLen() {
+        var to = dappAddress;
+        var value = "0";
+        var callFunction = "len";
+        nebPay.simulateCall(to, value, callFunction, '', {
+            listener: cbLen
+        });
+    }
+
+    function cbLen(resp) {
+        bLen = parseInt(resp.result || 0);
+    }
+
+    getLen();
+
+    // 获得制定范围随机数
+    function randomFrom(lowerValue, upperValue) {
+        return Math.floor(Math.random() * (upperValue - lowerValue + 1) + lowerValue);
+    }
+
+    // 算了
+    $('.cancel').on('click', function () {
+        $('.write-wrap').hide();
+    });
+
+    $('.send').on('click', function () {
+        var content = $('#sendContent').val();
+        if (content == '') {
+            layer.msg('内容不能为空呀！');
+            return;
+        }
+        var to = dappAddress;
+        var value = "0";
+        var callFunction = "set"
+        var callArgs = [];
+        callArgs.push((bLen + 1).toString());
+        callArgs.push(content);
+        nebPay.call(to, value, callFunction, JSON.stringify(callArgs), {    //使用nebpay的call接口去调用合约,
+            listener: cbSend
+        });
+    });
+
+    function cbSend(resp) {
+        $('.xinzhi-wrap').hide();
+        $('.write-wrap').hide();
+        $('#repayContent').val('');
+        $('#throwObj').show();
+        $('#throwObj').css('top', '-300px');
+        $('#throwObj').css('transform', 'scale(0.5)');
+        setTimeout(function () {
+            $('#throwObj').hide();
+            $('#throwObj').css('top', '0px');
+            $('#throwObj').css('transform', 'scale(1)');
+        }, 600);
+    }
+
+    // 扔瓶子
+    $('#throw').on('click', function () {
+        $('.write-wrap').show();
+    });
 
 </script>
 </body>

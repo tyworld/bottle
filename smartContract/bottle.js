@@ -1,67 +1,59 @@
 "use strict";
 
-var DictItem = function (text) {
+var BottleItem = function (text) {
     if (text) {
         var obj = JSON.parse(text);
         this.key = obj.key;
         this.value = obj.value;
-        this.author = obj.author;
     } else {
         this.key = "";
-        this.author = "";
         this.value = "";
     }
 };
 
-DictItem.prototype = {
+BottleItem.prototype = {
     toString: function () {
         return JSON.stringify(this);
     }
 };
 
-var SuperDictionary = function () {
+var Bottle = function () {
     LocalContractStorage.defineMapProperty(this, "repo", {
         parse: function (text) {
-            return new DictItem(text);
+            return new BottleItem(text);
         },
         stringify: function (o) {
             return o.toString();
         }
     });
+    LocalContractStorage.defineProperty(this, "size");
 };
 
-SuperDictionary.prototype = {
+Bottle.prototype = {
     init: function () {
-        // todo
+        this.size = 0;
     },
 
-    save: function (key, value) {
-
+    set: function (key, value) {
         key = key.trim();
         value = value.trim();
-        if (key === "" || value === "") {
-            throw new Error("empty key / value");
-        }
-        if (value.length > 64 || key.length > 64) {
-            throw new Error("key / value exceed limit length")
-        }
 
-        var from = Blockchain.transaction.from;
         var dictItem = this.repo.get(key);
         if (dictItem) {
             //throw new Error("value has been occupied");
             dictItem.value = JSON.parse(dictItem).value + '-' + value;
             this.repo.put(key, dictItem);
-
         } else {
-            dictItem = new DictItem();
-            dictItem.author = from;
+            dictItem = new BottleItem();
             dictItem.key = key;
             dictItem.value = value;
             this.repo.put(key, dictItem);
+            this.size +=1;
         }
     },
-
+    len:function(){
+        return this.size;
+    },
     get: function (key) {
         key = key.trim();
         if (key === "") {
@@ -70,4 +62,4 @@ SuperDictionary.prototype = {
         return this.repo.get(key);
     }
 };
-module.exports = SuperDictionary;
+module.exports = Bottle;
