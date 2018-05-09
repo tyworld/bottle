@@ -13,6 +13,10 @@
 <body>
 <div class="logo"></div>
 <div id="app">
+    <div class="noExtension" id="noExtension">
+        提示: 请安装
+        <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a> 再使用
+    </div>
     <div class="opt">
         <div id="throw" class="throw">
             <img src="img/salvage5.png" id="throwObj">
@@ -85,6 +89,7 @@
         }
     });
 
+
     //扔进大海
     $('.xinzhi-wrap .throw-btn').on('click', function () {
         $('.xinzhi-wrap').css('transform', 'scale(0)');
@@ -115,12 +120,7 @@
     var NebPay = require("nebpay");
     var nebPay = new NebPay();
 
-    if (typeof(webExtensionWallet) === "undefined") {
-        $("#noExtension").removeClass("hide")
-    } else {
-        $("#search_value").attr("disabled", false)
-        $("#search").attr("disabled", false)
-    }
+
 
     var dappAddress = "n1nR3gAZzJ6uG1JrjgXM9foao1brFg17QiB";
 
@@ -219,6 +219,14 @@
         $('.write-wrap').show();
     });
 
+    $(function(){
+        //检查扩展是否已安装
+        //如果安装了扩展，var“webExtensionWallet”将被注入到web页面中1
+        if(typeof(webExtensionWallet) === "undefined") {
+            //alert ("扩展钱包未安装，请先安装.")
+            $("#noExtension").show();
+        }
+    })
 </script>
 </body>
 
